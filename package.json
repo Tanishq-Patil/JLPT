@@ -1,0 +1,14 @@
+{
+  "name": "jlpt-n5-mastery",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Japanese N5 Adjectives and Verbs Interactive Quiz & Practice Platform",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^8.3.2"
+  }
+}

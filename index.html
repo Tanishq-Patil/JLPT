@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>日本語 JLPT N5 Master - Adjectives & Verbs Quiz Platform</title>
+  <meta name="description" content="Interactive Japanese JLPT N5 practice and quiz platform for memorizing adjectives, verbs, and all conjugation forms.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./src/styles.css">
+</head>
+<body>
+  <!-- Ambient Sakura Falling Petals -->
+  <canvas id="sakuraCanvas"></canvas>
+
+  <div class="app-container">
+    <!-- Top Application Header -->
+    <header class="app-header">
+      <div class="brand" id="brandLogo" title="Click to Return to Main Menu">
+        <div class="brand-icon">日</div>
+        <div class="brand-info">
+          <h1>JLPT N5 Master <span class="brand-tag">Verbs & Adjectives</span></h1>
+          <div class="brand-sub">Hirameki Japanese Language Study Suite • 204 Items</div>
+        </div>
+      </div>
+
+      <div class="header-status">
+        <div class="stat-chip streak-chip active" id="streakContainer" title="Current Study Streak">
+          <span>🔥</span>
+          <span id="streakDisplay">0</span> streak
+        </div>
+        <div class="stat-chip xp-chip" id="xpContainer" title="Earned Experience Points">
+          <span>⚡</span>
+          <span id="xpDisplay">0</span> XP
+        </div>
+        <div class="stat-chip level-chip" id="levelContainer" title="Current Level">
+          <span>🏆</span>
+          <span id="levelDisplay">Lv.1</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btnSakuraToggle" class="icon-btn active" title="Toggle Sakura Petals Animation" aria-label="Toggle Sakura">🌸</button>
+        <button id="btnSoundToggle" class="icon-btn active" title="Toggle Sound Effects & Audio" aria-label="Toggle Audio">🔊</button>
+        <button id="btnThemeToggle" class="icon-btn" title="Toggle Dark/Light Mode" aria-label="Toggle Theme">🌙</button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="app-nav" aria-label="Main Navigation">
+      <button class="nav-tab active" data-view="adjectives" id="tabAdjectives">
+        <span class="tab-icon">🌸</span>
+        <span>Adjectives Test</span>
+        <span class="nav-badge">89</span>
+      </button>
+      <button class="nav-tab" data-view="verbs" id="tabVerbs">
+        <span class="tab-icon">⚡</span>
+        <span>Verbs Test</span>
+        <span class="nav-badge">115</span>
+      </button>
+      <button class="nav-tab" data-view="mixed" id="tabMixed">
+        <span class="tab-icon">🎯</span>
+        <span>Mixed Test</span>
+        <span class="nav-badge">204</span>
+      </button>
+      <button class="nav-tab" data-view="drill" id="tabDrill">
+        <span class="tab-icon">🔄</span>
+        <span>Conjugation Drill</span>
+      </button>
+      <button class="nav-tab" data-view="flashcards" id="tabFlashcards">
+        <span class="tab-icon">🗂️</span>
+        <span>Flashcards (SRS)</span>
+      </button>
+      <button class="nav-tab" data-view="match" id="tabMatch">
+        <span class="tab-icon">🧩</span>
+        <span>Speed Match</span>
+      </button>
+      <button class="nav-tab" data-view="dict" id="tabDict">
+        <span class="tab-icon">📖</span>
+        <span>Dictionary</span>
+        <span class="nav-badge" id="dictNavBadge">204</span>
+      </button>
+    </nav>
+
+    <!-- Main Views -->
+    <main class="app-main">
+
+      <!-- ================================================================= -->
+      <!-- VIEW 1: DEDICATED ADJECTIVES TEST                                 -->
+      <!-- ================================================================= -->
+      <section id="view-adjectives" class="view-section active">
+        <div class="test-hero-card">
+          <div class="test-hero-header">
+            <div class="test-hero-title-group">
+              <h2><span>🌸</span> Japanese Adjectives Test (形容詞テスト)</h2>
+              <div class="test-hero-desc">
+                Dedicated testing suite for all 89 Japanese adjectives from your Hirameki study sheets.
+              </div>
+              <div class="test-badges-row">
+                <span class="test-badge-chip">🌸 54 い-Adjectives</span>
+                <span class="test-badge-chip">🌿 35 な-Adjectives</span>
+                <span class="test-badge-chip">✨ 89 Total Adjectives</span>
+              </div>
+            </div>
+            <button class="primary-btn" id="btnStartAdjTest" style="padding:0.9rem 2rem; font-size:1.05rem;">
+              <span>🌸 Start Adjectives Test</span> ➔
+            </button>
+          </div>
+
+          <div style="margin-bottom: 1.25rem;">
+            <div style="font-size:0.85rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.6rem;">
+              SELECT ADJECTIVE DECK:
+            </div>
+            <div class="deck-filter-pills" id="adjDeckFilters">
+              <button class="filter-pill active" data-filter="all_adj">All Adjectives (89)</button>
+              <button class="filter-pill" data-filter="i_adj">🌸 い-Adjectives Only (54)</button>
+              <button class="filter-pill" data-filter="na_adj">🌿 な-Adjectives Only (35)</button>
+            </div>
+          </div>
+
+          <div class="quiz-options-bar">
+            <div class="option-group">
+              <label for="adjQuestionType">Question Style:</label>
+              <select id="adjQuestionType" class="option-select">
+                <option value="jp_to_en">Japanese ➔ English Meaning</option>
+                <option value="en_to_jp">English Meaning ➔ Japanese</option>
+                <option value="reading">Kanji ➔ Furigana Reading</option>
+                <option value="adj_form">Adjective Forms (Negative / Past / Te-form)</option>
+                <option value="mixed">Mixed Adjective Styles</option>
+              </select>
+            </div>
+
+            <div class="option-group">
+              <label for="adjQuestionCount">Questions:</label>
+              <select id="adjQuestionCount" class="option-select">
+                <option value="10">10 Questions</option>
+                <option value="15" selected>15 Questions</option>
+                <option value="25">25 Questions</option>
+                <option value="all">All Available</option>
+              </select>
+            </div>
+
+            <div class="option-group">
+              <label for="adjTimerSelect">Timer:</label>
+              <select id="adjTimerSelect" class="option-select">
+                <option value="none">Zen (Untimed)</option>
+                <option value="15s">Blitz (15s per question)</option>
+              </select>
+            </div>
+
+            <div class="option-group" style="gap:1rem;">
+              <label class="toggle-switch-label">
+                <input type="checkbox" id="toggleAdjFurigana" checked>
+                <span>Furigana</span>
+              </label>
+              <label class="toggle-switch-label">
+                <input type="checkbox" id="toggleAdjRomaji" checked>
+                <span>Romaji</span>
+              </label>
+              <label class="toggle-switch-label">
+                <input type="checkbox" id="toggleAdjAutoAudio">
+                <span>Auto-Speak</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- VIEW 2: DEDICATED VERBS TEST                                      -->
+      <!-- ================================================================= -->
+      <section id="view-verbs" class="view-section">
+        <div class="test-hero-card">
+          <div class="test-hero-header">
+            <div class="test-hero-title-group">
+              <h2><span>⚡</span> Japanese Verbs Test (動詞テスト)</h2>
+              <div class="test-hero-desc">
+                Dedicated testing suite for all 115 verbs across Godan, Ichidan, and Irregular groups with full conjugations.
+              </div>
+              <div class="test-badges-row">
+                <span class="test-badge-chip">⚔️ 87 Godan (Group 1)</span>
+                <span class="test-badge-chip">🛡️ 26 Ichidan (Group 2)</span>
+                <span class="test-badge-chip">⚡ 2 Irregular (Group 3)</span>
+                <span class="test-badge-chip">📚 115 Total Verbs</span>
+              </div>
+            </div>
+            <button class="primary-btn" id="btnStartVerbTest" style="padding:0.9rem 2rem; font-size:1.05rem;">
+              <span>⚡ Start Verbs Test</span> ➔
+            </button>
+          </div>
+
+          <div style="margin-bottom: 1.25rem;">
+            <div style="font-size:0.85rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.6rem;">
+              SELECT VERB GROUP:
+            </div>
+            <div class="deck-filter-pills" id="verbDeckFilters">
+              <button class="filter-pill active" data-sub="all">All Verbs (115)</button>
+              <button class="filter-pill" data-sub="godan">⚔️ Godan / Group 1 (87)</button>
+              <button class="filter-pill" data-sub="ichidan">🛡️ Ichidan / Group 2 (26)</button>
+              <button class="filter-pill" data-sub="irregular">⚡ Irregular / Group 3 (2)</button>
+            </div>
+          </div>
+
+          <div class="quiz-options-bar">
+            <div class="option-group">
+              <label for="verbSpecificEnding">Specific Ending:</label>
+              <select id="verbSpecificEnding" class="option-select">
+                <option value="all">All Endings</option>
+                <option value="~う">~う Verbs (13)</option>
+                <option value="~く・ぐ">~く・ぐ Verbs (15)</option>
+                <option value="~す">~す Verbs (10)</option>
+                <option value="~つ">~つ Verbs (6)</option>
+                <option value="~ぬ・む・ぶ">~ぬ・む・ぶ Verbs (14)</option>
+                <option value="~る">~る Godan Verbs (29)</option>
+              </select>
+            </div>
+
+            <div class="option-group">
+              <label for="verbQuestionType">Question Style:</label>
+              <select id="verbQuestionType" class="option-select">
+                <option value="jp_to_en">Japanese ➔ English Meaning</option>
+                <option value="en_to_jp">English Meaning ➔ Japanese</option>
+                <option value="reading">Kanji ➔ Furigana Reading</option>
+                <option value="conjugation">Verb Conjugation Challenge (ます/ない/て/た/たい)</option>
+                <option value="mixed">Mixed Verbs Styles</option>
+              </select>
+            </div>
+
+            <div class="option-group">
+              <label for="verbQuestionCount">Questions:</label>
+              <select id="verbQuestionCount" class="option-select">
+                <option value="10">10 Questions</option>
+                <option value="15" selected>15 Questions</option>
+                <option value="25">25 Questions</option>
+                <option value="all">All Available</option>
+              </select>
+            </div>
+
+            <div class="option-group">
+              <label for="verbTimerSelect">Timer:</label>
+              <select id="verbTimerSelect" class="option-select">
+                <option value="none">Zen (Untimed)</option>
+                <option value="15s">Blitz (15s per question)</option>
+              </select>
+            </div>
+
+            <div class="option-group" style="gap:1rem;">
+              <label class="toggle-switch-label">
+                <input type="checkbox" id="toggleVerbFurigana" checked>
+                <span>Furigana</span>
+              </label>
+              <label class="toggle-switch-label">
+                <input type="checkbox" id="toggleVerbRomaji" checked>
+                <span>Romaji</span>
+              </label>
+              <label class="toggle-switch-label">
+                <input type="checkbox" id="toggleVerbAutoAudio">
+                <span>Auto-Speak</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- VIEW 3: FULL MIXED TEST & MISTAKES REVIEW                         -->
+      <!-- ================================================================= -->
+      <section id="view-mixed" class="view-section">
+        <div class="test-hero-card">
+          <div class="test-hero-header">
+            <div class="test-hero-title-group">
+              <h2><span>🎯</span> JLPT N5 Full Mixed Challenge & Mistakes</h2>
+              <div class="test-hero-desc">
+                Combined test covering both adjectives and verbs, or target your recorded mistakes!
+              </div>
+              <div class="test-badges-row">
+                <span class="test-badge-chip">📚 204 Total Words</span>
+                <span class="test-badge-chip" id="mixedMistakeBadge">⚠️ 0 Mistakes to Review</span>
+                <span class="test-badge-chip" id="mixedStarredBadge">⭐ 0 Starred Words</span>
+              </div>
+            </div>
+            <button class="primary-btn" id="btnStartMixedTest" style="padding:0.9rem 2rem; font-size:1.05rem;">
+              <span>🎯 Start Mixed Test</span> ➔
+            </button>
+          </div>
+
+          <div style="margin-bottom: 1.25rem;">
+            <div style="font-size:0.85rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.6rem;">
+              SELECT TARGET POOL:
+            </div>
+            <div class="deck-filter-pills" id="mixedDeckFilters">
+              <button class="filter-pill active" data-pool="all">All 204 Adjectives & Verbs</button>
+              <button class="filter-pill" data-pool="mistakes" id="pillReviewMistakes">⚠️ Review Mistakes (<span id="mistakeCountNum">0</span>)</button>
+              <button class="filter-pill" data-pool="starred">⭐ Starred Only</button>
+            </div>
+          </div>
+
+          <div class="quiz-options-bar">
+            <div class="option-group">
+              <label for="mixedQuestionType">Question Style:</label>
+              <select id="mixedQuestionType" class="option-select">
+                <option value="mixed">Mixed Challenge (All Styles)</option>
+                <option value="jp_to_en">Japanese ➔ English Meaning</option>
+                <option value="en_to_jp">English Meaning ➔ Japanese</option>
+                <option value="reading">Kanji ➔ Reading</option>
+                <option value="conjugation">Conjugation Forms</option>
+              </select>
+            </div>
+
+            <div class="option-group">
+              <label for="mixedQuestionCount">Questions:</label>
+              <select id="mixedQuestionCount" class="option-select">
+                <option value="15">15 Questions</option>
+                <option value="25" selected>25 Questions</option>
+                <option value="50">50 Questions</option>
+                <option value="all">All Available</option>
+              </select>
+            </div>
+
+            <div class="option-group">
+              <label for="mixedTimerSelect">Timer:</label>
+              <select id="mixedTimerSelect" class="option-select">
+                <option value="none">Zen (Untimed)</option>
+                <option value="15s">Blitz (15s per question)</option>
+              </select>
+            </div>
+
+            <div class="option-group" style="gap:1rem;">
+              <label class="toggle-switch-label">
+                <input type="checkbox" id="toggleMixedFurigana" checked>
+                <span>Furigana</span>
+              </label>
+              <label class="toggle-switch-label">
+                <input type="checkbox" id="toggleMixedRomaji" checked>
+                <span>Romaji</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- VIEW 4: ACTIVE QUIZ & TEST RESULTS (SHARED QUIZ RUNNER)           -->
+      <!-- ================================================================= -->
+      <section id="view-active-quiz" class="view-section">
+        <!-- Active Question Card -->
+        <div class="quiz-card" id="quizCard">
+          <div class="quiz-meta-bar">
+            <button class="test-exit-btn" id="btnExitQuiz" title="Exit test and return to main menu">
+              <span>◀</span> <span>Exit to Menu</span>
+            </button>
+
+            <span class="prompt-badge" id="activeTestTitleBadge" style="margin-bottom:0;">🌸 Adjectives Test</span>
+
+            <div class="quiz-progress-wrap">
+              <div class="quiz-progress-text" id="quizProgressText">Question <span>1 of 15</span></div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="quizProgressFill" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <div class="quiz-timer-badge" id="quizTimerBadge" style="display: none;">
+              <span>⏱️</span> <span id="quizTimerVal">15s</span>
+            </div>
+
+            <div class="quiz-combo-badge" id="quizComboBadge" style="display: none;">
+              <span>🔥</span> <span id="quizComboVal">Combo x1</span>
+            </div>
+          </div>
+
+          <!-- Prompt Box -->
+          <div class="question-container">
+            <span class="prompt-badge" id="promptBadge">i-Adjective</span>
+            <div class="prompt-kanji-wrap">
+              <div class="prompt-kanji" id="promptKanjiText">青い</div>
+              <button class="audio-trigger-btn" id="btnPromptAudio" title="Listen to Native Pronunciation" aria-label="Play audio">🔊</button>
+            </div>
+            <div class="prompt-romaji" id="promptRomajiText">aoi</div>
+            <div class="prompt-clue" id="promptClueText">Select the correct English meaning:</div>
+          </div>
+
+          <!-- Multiple Choices (1-4) -->
+          <div class="choices-grid" id="choicesGrid">
+            <!-- Populated via Javascript -->
+          </div>
+
+          <!-- Instant Feedback & Full Breakdown -->
+          <div class="quiz-feedback-box" id="quizFeedbackBox">
+            <div class="feedback-header">
+              <div class="feedback-status" id="feedbackStatus">✓ 正解！ Excellent!</div>
+            </div>
+            <div class="feedback-details" id="feedbackText"></div>
+            <div class="conjugation-strip" id="feedbackConjugations"></div>
+            <div class="quiz-footer-actions">
+              <button class="primary-btn" id="btnNextQuestion">
+                <span>Next Question</span> (Enter / Space) ➔
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quiz Results Box -->
+        <div class="results-card" id="quizResultsBox" style="display: none;">
+          <div class="results-rank-badge" id="resultsRank">S</div>
+          <h2>Test Completed! お疲れ様でした！</h2>
+          <p style="color:var(--text-secondary);margin-top:0.5rem;" id="resultsSubMsg">Great practice session. Keep up your JLPT N5 momentum!</p>
+
+          <div class="results-stats-row">
+            <div class="result-stat-box">
+              <div class="val" id="resultsScoreVal">15 / 15</div>
+              <div class="lbl">Score</div>
+            </div>
+            <div class="result-stat-box">
+              <div class="val" id="resultsXpVal">+180 XP</div>
+              <div class="lbl">Experience</div>
+            </div>
+            <div class="result-stat-box">
+              <div class="val" id="resultsStreakVal">15 🔥</div>
+              <div class="lbl">Max Streak</div>
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:center; gap:1rem; flex-wrap:wrap; margin-top:1.5rem;">
+            <button class="primary-btn home-btn" id="btnBackToHome">
+              <span>🏠</span> Back to Main Menu
+            </button>
+            <button class="secondary-btn" id="btnRestartQuiz">
+              <span>🔄</span> Retake Test
+            </button>
+            <button class="secondary-btn" id="btnReviewMistakes">
+              <span>⚠️</span> Review Mistakes
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- VIEW 5: CONJUGATION DRILL                                         -->
+      <!-- ================================================================= -->
+      <section id="view-drill" class="view-section">
+        <div class="deck-config-card">
+          <div class="deck-config-header">
+            <div class="deck-config-title">
+              <span>⚡</span> Japanese Verb Conjugation Master Drill
+            </div>
+            <div style="font-size:0.85rem;color:var(--text-secondary);">
+              Toggle target forms to drill:
+            </div>
+          </div>
+
+          <div class="conjugation-target-selector">
+            <button class="conj-toggle-chip active" data-form="masu">～ます (Polite)</button>
+            <button class="conj-toggle-chip active" data-form="nai">～ない (Negative)</button>
+            <button class="conj-toggle-chip active" data-form="te">～て (Te-form)</button>
+            <button class="conj-toggle-chip active" data-form="ta">～た (Past)</button>
+            <button class="conj-toggle-chip active" data-form="tai">～たい (Want to)</button>
+            <button class="conj-toggle-chip active" data-form="takunai">～たくない (Don't want to)</button>
+          </div>
+        </div>
+
+        <div class="quiz-card">
+          <div class="question-container">
+            <div style="display:flex; justify-content:center; gap:0.5rem; margin-bottom:0.75rem;">
+              <span class="prompt-badge" id="drillTargetFormBadge">～て (Te-form)</span>
+            </div>
+            <div class="prompt-kanji" id="drillVerbKanji">話す</div>
+            <div class="prompt-clue" id="drillVerbMeaning">To speak • Godan verb</div>
+          </div>
+
+          <!-- Option 1: 4 Multiple Choice Buttons -->
+          <div class="choices-grid" id="drillChoicesGrid">
+            <!-- Dynamic Buttons -->
+          </div>
+
+          <!-- Option 2: Romaji/Hiragana Auto-Transliterating Type-In Input -->
+          <div class="drill-input-wrap">
+            <input type="text" id="drillTextInput" class="drill-text-input" placeholder="Or type answer (e.g. 'hanashite')" autocomplete="off" spellcheck="false">
+            <div class="drill-input-helper">💡 Tip: Type in Romaji — it automatically converts to Hiragana as you type! Press Enter to check.</div>
+          </div>
+
+          <div class="quiz-feedback-box" id="drillFeedbackBox">
+            <div class="feedback-status" id="drillFeedbackStatus">✓ Perfect Conjugation!</div>
+            <div class="feedback-details" id="drillFeedbackExplanation"></div>
+            <div class="quiz-footer-actions">
+              <button class="primary-btn" id="btnNextDrill">Next Verb ➔</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- VIEW 6: FLASHCARDS (SRS 3D DECK)                                  -->
+      <!-- ================================================================= -->
+      <section id="view-flashcards" class="view-section">
+        <div class="deck-config-card" style="margin-bottom: 1.5rem;">
+          <div class="deck-config-header">
+            <div class="deck-config-title">
+              <span>🗂️</span> Spaced Repetition Flashcard Deck
+            </div>
+            <div class="option-group">
+              <label for="cardDeckFilter">Deck:</label>
+              <select id="cardDeckFilter" class="option-select">
+                <option value="all">All Words (204)</option>
+                <option value="verbs">Verbs (115)</option>
+                <option value="i_adj">い-Adjectives (54)</option>
+                <option value="na_adj">な-Adjectives (35)</option>
+                <option value="starred">⭐ Starred Only</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="flashcards-container">
+          <div class="flashcard-scene" id="flashcardScene" title="Click or Press Space to Flip">
+            <div class="flashcard-object" id="flashcardObject">
+              <!-- Front Side -->
+              <div class="flashcard-face flashcard-front">
+                <span class="card-category-badge" id="cardCategoryBadge">Godan Verb</span>
+                <button class="card-star-btn" id="cardStarBtn" title="Star this card">★</button>
+
+                <div class="card-main-kanji" id="cardFrontKanji">会う</div>
+                <div class="card-furigana-sub" id="cardFrontFurigana">あう</div>
+                <div class="card-romaji-sub" id="cardFrontRomaji">au</div>
+
+                <div style="margin-top: 1rem;">
+                  <button class="audio-trigger-btn" id="btnCardAudio" title="Pronounce">🔊</button>
+                </div>
+
+                <div class="card-hint">Click card or press [Space] to flip</div>
+              </div>
+
+              <!-- Back Side -->
+              <div class="flashcard-face flashcard-back">
+                <div class="card-category-badge">Definition & Conjugations</div>
+                <div class="card-meaning" id="cardMeaningBack">To meet</div>
+
+                <!-- Conjugations grid on back of card -->
+                <div class="card-verb-conjugation-grid" id="cardBackConjugations">
+                  <!-- Injected via JS -->
+                </div>
+
+                <div class="card-hint">How well did you know this word?</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SRS Rating Controls -->
+          <div class="flashcard-rating-bar">
+            <button class="rate-btn hard" data-rating="hard" title="Press 1">
+              <span>❌</span> Hard [1]
+            </button>
+            <button class="rate-btn good" data-rating="good" title="Press 2">
+              <span>👍</span> Good [2]
+            </button>
+            <button class="rate-btn easy" data-rating="easy" title="Press 3">
+              <span>⭐</span> Easy [3]
+            </button>
+          </div>
+
+          <!-- Navigation Controls -->
+          <div class="card-nav-controls">
+            <button class="secondary-btn" id="btnCardPrev" title="Press Left Arrow">◄ Previous</button>
+            <button class="secondary-btn" id="btnCardFlip">🔄 Flip (Space)</button>
+            <button class="secondary-btn" id="btnCardNext" title="Press Right Arrow">Next ►</button>
+            <span style="font-family:var(--font-mono);font-size:0.85rem;color:var(--text-muted);" id="cardCounter">1 / 204</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- VIEW 7: SPEED MATCH GAME                                          -->
+      <!-- ================================================================= -->
+      <section id="view-match" class="view-section">
+        <div class="match-game-container">
+          <div class="match-stats-bar">
+            <div style="font-weight:700;display:flex;align-items:center;gap:0.5rem;">
+              <span>⏱️ Time:</span>
+              <span id="matchTimerVal" style="font-family:var(--font-mono);color:var(--sakura-400);font-size:1.15rem;">00:00</span>
+            </div>
+            <div id="matchPairsLeft" style="font-weight:600;color:var(--text-secondary);">6 pairs left</div>
+            <button class="primary-btn" id="btnResetMatch" style="padding:0.4rem 1rem;font-size:0.85rem;">🔄 New Game</button>
+          </div>
+
+          <div class="match-grid" id="matchGrid">
+            <!-- 12 Tiles injected dynamically -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- VIEW 8: MASTER DICTIONARY & CONJUGATION EXPLORER                  -->
+      <!-- ================================================================= -->
+      <section id="view-dict" class="view-section">
+        <div class="dict-toolbar">
+          <div class="search-input-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="dictSearchInput" class="search-input" placeholder="Search by Kanji, Hiragana, Romaji, or English meaning..." autocomplete="off">
+          </div>
+
+          <div class="deck-filter-pills" id="dictFilters">
+            <button class="filter-pill active" data-filter="all">All (204)</button>
+            <button class="filter-pill" data-filter="verbs">Verbs (115)</button>
+            <button class="filter-pill" data-filter="i_adj">い-Adj (54)</button>
+            <button class="filter-pill" data-filter="na_adj">な-Adj (35)</button>
+            <button class="filter-pill" data-filter="starred">⭐ Starred</button>
+          </div>
+
+          <div style="font-size:0.85rem;font-weight:700;color:var(--text-muted);" id="dictCountBadge">
+            204 items
+          </div>
+        </div>
+
+        <div class="dict-grid" id="dictGrid">
+          <!-- Populated via Javascript -->
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Modal for Full Conjugation Table -->
+  <div class="modal-backdrop" id="conjModal">
+    <div class="modal-content">
+      <button class="modal-close-btn" id="btnModalClose">✕</button>
+      <h2 id="modalTitle" style="margin-bottom:0.75rem;font-family:var(--font-jp);">Conjugation Table</h2>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Main ES Module Script -->
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>
